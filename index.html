@@ -277,25 +277,34 @@ function goBack(){
 
 /* -------- PDF GENERATION -------- */
 function savePDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    alert("PDF library not loaded. Please refresh the page.");
+    return;
+  }
+
+  const doc = new window.jspdf.jsPDF();
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-GB").replace(/\//g, "-");
   const timeStr = now
-    .toLocaleTimeString("en-GB", { hour12:false })
+    .toLocaleTimeString("en-GB", { hour12: false })
     .replace(/:/g, "-");
 
   let y = 15;
+
   doc.setFontSize(16);
   doc.text("Invoice", 105, y, { align: "center" });
   y += 10;
 
   doc.setFontSize(11);
-  doc.text(`Dealer: ${finalDealer}`, 10, y); y += 6;
-  doc.text(`Date: ${dateStr} ${timeStr.replace(/-/g, ":")}`, 10, y); y += 8;
+  doc.text(`Dealer: ${finalDealer}`, 10, y); 
+  y += 6;
+  doc.text(`Date: ${dateStr} ${timeStr.replace(/-/g, ":")}`, 10, y); 
+  y += 8;
 
-  doc.line(10, y, 200, y); y += 6;
+  doc.line(10, y, 200, y);
+  y += 6;
 
   finalBill.forEach(b => {
     doc.text(`${b.item} (${b.qty} x ${b.price})`, 10, y);
@@ -304,14 +313,15 @@ function savePDF(){
   });
 
   y += 4;
-  doc.line(10, y, 200, y); y += 8;
+  doc.line(10, y, 200, y);
+  y += 8;
 
   doc.setFontSize(13);
   doc.text("Grand Total", 10, y);
   doc.text(`₹${finalGrand}`, 190, y, { align: "right" });
 
-  /* ✅ FILE NAME = DATE + TIME */
   const fileName = `Invoice_${dateStr}_${timeStr}.pdf`;
+
   doc.save(fileName);
 }
 </script>
